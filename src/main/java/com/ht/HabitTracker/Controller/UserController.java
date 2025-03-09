@@ -25,7 +25,7 @@ public class UserController {
             return "User already exists with this email!";
         }
         service.registerUser(user);
-        return "User registered suuccessfully!";
+        return "User registered successfully!";
     }
 
     @GetMapping("/{email}")

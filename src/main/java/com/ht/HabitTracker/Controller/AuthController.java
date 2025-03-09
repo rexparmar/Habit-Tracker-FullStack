@@ -21,24 +21,22 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Registration endpoint
     @PostMapping("/register")
     public String register(@RequestBody User user) {
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
             return "User already exists!";
         }
         userService.registerUser(user);
-        return "User has been successfully registered in system!"; // Redirect to login after successful registration
+        return "User has been successfully registered in system!";
     }
 
-    // Login endpoint (spring security will handle the authentication automatically)
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password) {
         Optional<User> user = userRepository.findByUsername(username);
         if (user != null && user.isPresent() && new BCryptPasswordEncoder().matches(password,user.get().getPassword())) {
-            return "Login successful!";  // Redirect to the home page after successful login
+            return "Login successful!";
         }
-        return "redirect:/login?error";  // Show error if login fails
+        return "redirect:/login?error";
     }
 }
 

@@ -8,8 +8,8 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    private String jwtSecret = "secretKey"; // This should be stored in an application.properties file
-    private int jwtExpirationMs = 86400000; // 24 hours
+    private String jwtSecret = "secretKey";
+    private int jwtExpirationMs = 86400000;
 
     public String generateToken(String username) {
         return Jwts.builder()

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {
@@ -28,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest) {
         System.out.println("Received username: " + loginRequest.getUsername());
         System.out.println("Received password: " + loginRequest.getPassword());
         try {
@@ -36,9 +39,17 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
             String token = jwtUtil.generateToken(loginRequest.getUsername());
-            return ResponseEntity.ok("Bearer " + token);
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("username", loginRequest.getUsername());
+            // Add token expiration time
+            response.put("message", "Login successful");
+
+            // Return the response as JSON
+            return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid username or password");
-        }
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid username or password");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);        }
     }
 }

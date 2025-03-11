@@ -1,42 +1,44 @@
 package com.ht.HabitTracker.Controller;
 
-import com.ht.HabitTracker.Model.User;
-import com.ht.HabitTracker.Repository.UserRepository;
-import com.ht.HabitTracker.Security.JwtUtils;
-import com.ht.HabitTracker.Service.UserService;
+import com.ht.HabitTracker.DTO.LoginRequest;
+import com.ht.HabitTracker.Security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api")
 public class AuthController {
+    private final JwtUtil jwtUtil;
     @Autowired
-    private UserService userService;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Lazy // Delay injection of AuthenticationProvider
+    private AuthenticationProvider authenticationProvider;
 
-    @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        if(userRepository.findByEmail(user.getEmail()).isPresent()){
-            return "User already exists!";
-        }
-        userService.registerUser(user);
-        return "User has been successfully registered in system!";
+    public AuthController(@Lazy AuthenticationProvider authenticationProvider, JwtUtil jwtUtil) {
+        this.authenticationProvider = authenticationProvider;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user != null && user.isPresent() && new BCryptPasswordEncoder().matches(password,user.get().getPassword())) {
-            return "Login successful!";
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        System.out.println("Received username: " + loginRequest.getUsername());
+        System.out.println("Received password: " + loginRequest.getPassword());
+        try {
+            authenticationProvider.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+            String token = jwtUtil.generateToken(loginRequest.getUsername());
+            return ResponseEntity.ok("Bearer " + token);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid username or password");
         }
-        return "redirect:/login?error";
     }
 }
-

@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -21,14 +23,18 @@ public class UserController {
     private UserRepository repo;
 
     @PostMapping("/register")
-    public String registerUser(@RequestBody User user){
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody User user){
         Optional<User> existingUser = repo.findByEmail(user.getEmail());
-
-        if(existingUser.isPresent()){
-            return "User already exists with this email!";
+        Optional<User> existingUserName = repo.findByUsername(user.getUsername());
+        if(existingUser.isPresent() || existingUserName.isPresent()){
+            Map<String, String> res = new HashMap<>();
+            res.put("message","User already exists with this email or username!!");
+            return ResponseEntity.ok(res);
         }
         service.registerUser(user);
-        return "User registered successfully!";
+        Map<String, String> successRes = new HashMap<>();
+        successRes.put("message", "User Registered Successfully!");
+        return ResponseEntity.ok(successRes);
     }
 
     @GetMapping("/{email}")

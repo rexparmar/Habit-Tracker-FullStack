@@ -1,9 +1,6 @@
 package com.ht.HabitTracker.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Value;
 import org.hibernate.annotations.ValueGenerationType;
@@ -23,6 +20,9 @@ public class Habit {
     private String description;
     private String frequency;
     private LocalDate createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public void setId(Long id){
         this.id=id;
@@ -70,5 +70,13 @@ public class Habit {
 
     public LocalDate getCreatedAt(){
         return createdAt;
+    }
+
+    public void setUser(User user){
+        this.user=user;
+    }
+
+    public User getUser(){
+        return user;
     }
 }

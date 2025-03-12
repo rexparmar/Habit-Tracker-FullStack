@@ -1,6 +1,7 @@
 package com.ht.HabitTracker.Service;
 
 import com.ht.HabitTracker.Model.Habit;
+import com.ht.HabitTracker.Model.User;
 import com.ht.HabitTracker.Repository.HabitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,9 @@ public class HabitService {
     private HabitRepository repo;
 
 
-    public String createHabit(Habit habit){
+    public String createHabit(Habit habit, User user){
         habit.setCreatedAt(LocalDate.now());
+        habit.setUser(user);
         repo.save(habit);
         return "Habit created successfully!";
     }

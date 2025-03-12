@@ -32,7 +32,7 @@ public class UserController {
             return ResponseEntity.ok(res);
         }
         service.registerUser(user);
-        Map<String, String> successRes = new HashMap<>();
+        Map<String, String>  successRes = new HashMap<>();
         successRes.put("message", "User Registered Successfully!");
         return ResponseEntity.ok(successRes);
     }

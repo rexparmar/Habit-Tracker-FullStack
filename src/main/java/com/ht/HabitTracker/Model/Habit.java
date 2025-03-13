@@ -1,5 +1,6 @@
 package com.ht.HabitTracker.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Value;
@@ -22,6 +23,7 @@ public class Habit {
     private LocalDate createdAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     public void setId(Long id){
